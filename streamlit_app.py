@@ -5,37 +5,31 @@ from openai import OpenAI
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-def init():
-    client = OpenAI(api_key = openai.api_key)
+client = OpenAI(api_key = openai.api_key)
 
-    #create assistant instance
-    assistant = client.beta.assistants.create(
-        instructions="You are a helpful assistant. Keep the answers as concise as possible",
-        name="Helpful Assistant",
-        model="gpt-3.5-turbo",
-    )
+#create assistant instance
+assistant = client.beta.assistants.create(
+    instructions="You are a helpful assistant. Keep the answers as concise as possible",
+    name="Helpful Assistant",
+    model="gpt-3.5-turbo",
+)
 
-    #create thread instance
-    thread = client.beta.threads.create()
+#create thread instance
+thread = client.beta.threads.create()
 
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 
-    # Display chat messages from history on app rerun
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-#end init()
-
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
 # Clear chat messages
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
-
-#initialize openai Assistant APIs
-init()
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
