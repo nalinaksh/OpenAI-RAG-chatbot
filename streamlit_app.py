@@ -52,6 +52,11 @@ if prompt := st.chat_input("How are you?"):
       thread_id=thread.id,
       assistant_id=assistant.id
     )
+    #get run status
+    run = client.beta.threads.runs.retrieve(
+        thread_id=thread.id,
+        run_id=run.id
+    )
     #retrieve all thread messages and fetch the newly generate response by the assistant
     thread_messages = client.beta.threads.messages.list(thread.id)
     message = thread_messages.data[0]
