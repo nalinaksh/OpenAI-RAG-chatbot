@@ -1,6 +1,7 @@
 import streamlit as st
 import openai
 from openai import OpenAI
+import sleep
 
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -52,11 +53,15 @@ if prompt := st.chat_input("How are you?"):
       thread_id=thread.id,
       assistant_id=assistant.id
     )
-    #get run status
-    run = client.beta.threads.runs.retrieve(
-        thread_id=thread.id,
-        run_id=run.id
-    )
+    #poll run status every 1 sec to find out if the request has been completed or not
+    status = "in_progress"
+    while status == "in_progress":
+        time.sleep(1)
+        run = client.beta.threads.runs.retrieve(
+            thread_id=thread.id,
+            run_id=run.id
+        )
+        status = run.status
     #retrieve all thread messages and fetch the newly generate response by the assistant
     thread_messages = client.beta.threads.messages.list(thread.id)
     message = thread_messages.data[0]
