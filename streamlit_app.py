@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-st.write(logger.debug("Creating openai client"))
+st.write(logger.info("Creating openai client"))
 client = OpenAI(api_key = openai.api_key)
 
 #create assistant instance
-st.write(logger.debug("Creating openai assistant"))
+st.write(logger.info("Creating openai assistant"))
 assistant = client.beta.assistants.create(
     instructions="You are a helpful assistant. Keep the answers as concise as possible",
     name="Helpful Assistant",
@@ -22,7 +22,7 @@ assistant = client.beta.assistants.create(
 )
 
 #create thread instance
-st.write(logger.debug("Creating openai thread"))
+st.write(logger.info("Creating openai thread"))
 thread = client.beta.threads.create()
 
 # Initialize chat history
@@ -73,8 +73,8 @@ if prompt := st.chat_input("How are you?"):
     thread_messages = client.beta.threads.messages.list(thread.id)
     #message = thread_messages.data[0]
     for message in thread_messages.data:
-        st.write(logger.debug(message.role))
-        st.write(logger.debug(message.content[0].text.value))
+        st.write(logger.info(message.role))
+        st.write(logger.info(message.content[0].text.value))
     #assistant_response += message.content[0].text.value
     #placeholder.chat_message("assistant").markdown(assistant_response, unsafe_allow_html=True)
     
