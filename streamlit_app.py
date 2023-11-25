@@ -6,9 +6,11 @@ import time
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+print("Creating openai client")
 client = OpenAI(api_key = openai.api_key)
 
 #create assistant instance
+print("Creating openai assistant")
 assistant = client.beta.assistants.create(
     instructions="You are a helpful assistant. Keep the answers as concise as possible",
     name="Helpful Assistant",
@@ -16,6 +18,7 @@ assistant = client.beta.assistants.create(
 )
 
 #create thread instance
+print("Creating openai thread")
 thread = client.beta.threads.create()
 
 # Initialize chat history
