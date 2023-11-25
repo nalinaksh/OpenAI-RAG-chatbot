@@ -68,7 +68,7 @@ if prompt := st.chat_input("How are you?"):
         status = run.status
         
     #retrieve all thread messages and fetch the newly generate response by the assistant
-    thread_messages = client.beta.threads.messages.list(thread.id)
+    thread_messages = client.beta.threads.messages.list(thread_id)
     message = thread_messages.data[0]
     assistant_response += message.content[0].text.value
     placeholder.chat_message("assistant").markdown(assistant_response, unsafe_allow_html=True)
