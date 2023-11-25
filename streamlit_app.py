@@ -13,7 +13,7 @@ def get_client():
     
 #create assistant instance
 @st.cache_resource
-def get_assistance(client):
+def get_assistant(client):
     assistant = client.beta.assistants.create(
         instructions="You are a helpful assistant. Keep the answers as concise as possible",
         name="Helpful Assistant",
