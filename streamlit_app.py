@@ -2,28 +2,30 @@ import streamlit as st
 import openai
 from openai import OpenAI
 import time
-import logging
-
-#logging
-logger = logging.getLogger(__name__)
 
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-st.write(logger.info("Creating openai client"))
-client = OpenAI(api_key = openai.api_key)
-
+@st.cache_resource
+def get_client():
+    client = OpenAI(api_key = openai.api_key)
+    return client
+    
 #create assistant instance
-st.write(logger.info("Creating openai assistant"))
-assistant = client.beta.assistants.create(
-    instructions="You are a helpful assistant. Keep the answers as concise as possible",
-    name="Helpful Assistant",
-    model="gpt-3.5-turbo",
-)
+@st.cache_resource
+def get_assistance(client):
+    assistant = client.beta.assistants.create(
+        instructions="You are a helpful assistant. Keep the answers as concise as possible",
+        name="Helpful Assistant",
+        model="gpt-3.5-turbo",
+    )
+    return assistant
 
 #create thread instance
-st.write(logger.info("Creating openai thread"))
-thread = client.beta.threads.create()
+@st.cache_resource
+def get_thread(client):
+    thread = client.beta.threads.create()
+    return thread
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -38,6 +40,10 @@ for message in st.session_state.messages:
 def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
+
+client = get_client()
+assistant = get_assistant(client)
+thread = get_thread(client)
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
@@ -55,11 +61,13 @@ if prompt := st.chat_input("How are you?"):
       role="user",
       content=prompt,
     )
+    
     #ask assistant to process the thread messages to generate and append the new response back to the thread 
     run = client.beta.threads.runs.create(
       thread_id=thread.id,
       assistant_id=assistant.id
     )
+    
     #poll run status every 1 sec to find out if the request has been completed or not
     status = "in_progress"
     while status == "in_progress":
@@ -69,14 +77,12 @@ if prompt := st.chat_input("How are you?"):
             run_id=run.id
         )
         status = run.status
+        
     #retrieve all thread messages and fetch the newly generate response by the assistant
     thread_messages = client.beta.threads.messages.list(thread.id)
-    #message = thread_messages.data[0]
-    for message in thread_messages.data:
-        st.write(logger.info(message.role))
-        st.write(logger.info(message.content[0].text.value))
-    #assistant_response += message.content[0].text.value
-    #placeholder.chat_message("assistant").markdown(assistant_response, unsafe_allow_html=True)
+    message = thread_messages.data[0]
+    assistant_response += message.content[0].text.value
+    placeholder.chat_message("assistant").markdown(assistant_response, unsafe_allow_html=True)
     
     # Add assistant response to chat history
-    #st.session_state.messages.append({"role": "assistant", "content": assistant_response})
+    st.session_state.messages.append({"role": "assistant", "content": assistant_response})
