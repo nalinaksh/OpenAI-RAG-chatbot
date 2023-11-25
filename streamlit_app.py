@@ -5,28 +5,19 @@ import time
 
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key = openai.api_key)
 
-@st.cache_resource
-def get_client():
-    client = OpenAI(api_key = openai.api_key)
-    return client
-    
-#create assistant instance
-@st.cache_resource
-def get_assistant(client):
+@st.cache_data
+def init():
     assistant = client.beta.assistants.create(
         instructions="You are a helpful assistant. Keep the answers as concise as possible",
         name="Helpful Assistant",
         model="gpt-3.5-turbo",
     )
-    return assistant
 
-#create thread instance
-@st.cache_resource
-def get_thread(client):
     thread = client.beta.threads.create()
-    return thread
-
+    return (assistant.id, thread.id)
+    
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
@@ -41,9 +32,7 @@ def clear_chat_history():
     st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
-client = get_client()
-assistant = get_assistant(client)
-thread = get_thread(client)
+assistant_id, thread_id = init()
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
@@ -57,15 +46,15 @@ if prompt := st.chat_input("How are you?"):
 
     #Post user message to the thread
     thread_message = client.beta.threads.messages.create(
-      thread.id,
+      thread_id,
       role="user",
       content=prompt,
     )
     
     #ask assistant to process the thread messages to generate and append the new response back to the thread 
     run = client.beta.threads.runs.create(
-      thread_id=thread.id,
-      assistant_id=assistant.id
+      thread_id=thread_id,
+      assistant_id=assistant_id
     )
     
     #poll run status every 1 sec to find out if the request has been completed or not
@@ -73,7 +62,7 @@ if prompt := st.chat_input("How are you?"):
     while status == "in_progress":
         time.sleep(1)
         run = client.beta.threads.runs.retrieve(
-            thread_id=thread.id,
+            thread_id=thread_id,
             run_id=run.id
         )
         status = run.status
