@@ -12,7 +12,8 @@ def init():
     assistant = client.beta.assistants.create(
         instructions="You are a helpful assistant. Answer the queries based upon knowledge retrieve from the attached files only. Keep the answers as concise as possible",
         name="Helpful Assistant",
-        model="gpt-3.5-turbo",
+        #model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-1106",
         tools=[{"type": "retrieval"}]
     )
     #attach a file to assistant
