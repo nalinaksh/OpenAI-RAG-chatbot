@@ -14,7 +14,12 @@ def init():
         name="Helpful Assistant",
         model="gpt-3.5-turbo",
     )
-
+    #attach a file to assistant
+    assistant_file = client.beta.assistants.files.create(
+    assistant_id=assistant.id, 
+    file_id="memgpt.pdf"
+    )
+    #create a persistent thread
     thread = client.beta.threads.create()
     return (assistant.id, thread.id)
     
