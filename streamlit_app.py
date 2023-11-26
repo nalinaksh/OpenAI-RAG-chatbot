@@ -10,9 +10,10 @@ client = OpenAI(api_key = openai.api_key)
 @st.cache_data
 def init():
     assistant = client.beta.assistants.create(
-        instructions="You are a helpful assistant. Keep the answers as concise as possible",
+        instructions="You are a helpful assistant. Answer the queries based upon knowledge retrieve from the attached files only. Keep the answers as concise as possible",
         name="Helpful Assistant",
         model="gpt-3.5-turbo",
+        tools: [{"type": "retrieval"}]
     )
     #attach a file to assistant
     assistant_file = client.beta.assistants.files.create(
