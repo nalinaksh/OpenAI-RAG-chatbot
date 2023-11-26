@@ -16,10 +16,16 @@ def init():
         model="gpt-3.5-turbo-1106",
         tools=[{"type": "retrieval"}]
     )
-    #attach a file to assistant
+    
+    #file to be attached to the assistant
+    file = client.files.create(
+        file=open("memgpt.pdf", "rb"),
+        purpose='assistants'
+    )
+    #attaching the file to assistant
     assistant_file = client.beta.assistants.files.create(
     assistant_id=assistant.id, 
-    file_id="memgpt.pdf"
+    file_id=file.id
     )
     #create a persistent thread
     thread = client.beta.threads.create()
