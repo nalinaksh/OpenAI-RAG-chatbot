@@ -8,8 +8,8 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key = openai.api_key)
 
 #method for user uploaded files to attach to the assistant
-def upload_file():
-    uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=False)
+def upload_file(assistant_id):
+    uploaded_files = st.file_uploader("Choose a pdf file", accept_multiple_files=False)
     for uploaded_file in uploaded_files:
         if uploaded_file is not None:
             bytes_data = uploaded_file.read()
@@ -23,7 +23,7 @@ def upload_file():
             )
             #attach file to assistant
             assistant_file = client.beta.assistants.files.create(
-                assistant_id=assistant.id, 
+                assistant_id=assistant_id, 
                 file_id=file.id
             )
 
@@ -56,7 +56,7 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 assistant_id, thread_id = init()
-upload_file()
+upload_file(assistant_id)
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
