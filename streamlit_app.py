@@ -9,7 +9,7 @@ client = OpenAI(api_key = openai.api_key)
 
 #method for user uploaded files to attach to the assistant
 def upload_file(assistant_id):
-    uploaded_files = st.file_uploader("Choose a pdf file", accept_multiple_files=False)
+    uploaded_files = st.file_uploader("Choose a pdf file", accept_multiple_files=True)
     for uploaded_file in uploaded_files:
         if uploaded_file is not None:
             bytes_data = uploaded_file.read()
