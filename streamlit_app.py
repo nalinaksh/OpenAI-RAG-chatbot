@@ -2,6 +2,7 @@ import streamlit as st
 import openai
 from openai import OpenAI
 import time
+import os
 
 # Set OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -11,13 +12,15 @@ client = OpenAI(api_key = openai.api_key)
 def upload_file(uploaded_files, assistant_id):
     for uploaded_file in uploaded_files:
         if uploaded_file is not None:
-            # bytes_data = uploaded_file.read()
-            # st.write("filename:", uploaded_file.name)
-            # st.write(bytes_data)
-            
+            # Get the full file path of the uploaded file
+            file_path = os.path.join(os.getcwd(), uploaded_file.name)
+            # Save the uploaded file to disk
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getvalue())
+                    
             #file to be attached to the assistant
             file = client.files.create(
-                file=open(uploaded_file.name, "rb"),
+                file=open(file_path, "rb"),
                 purpose='assistants'
             )
             #attach file to assistant
@@ -56,7 +59,8 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 uploaded_files = st.sidebar.file_uploader("Choose a pdf file", accept_multiple_files=True)
 assistant_id, thread_id = init()
-upload_file(uploaded_files, assistant_id)
+if uploaded_files:
+    upload_file(uploaded_files, assistant_id)
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
