@@ -7,6 +7,26 @@ import time
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key = openai.api_key)
 
+#method for user uploaded files to attach to the assistant
+def upload_file():
+    uploaded_files = st.file_uploader("Choose a CSV file", accept_multiple_files=False)
+    for uploaded_file in uploaded_files:
+        if uploaded_file is not None:
+            bytes_data = uploaded_file.read()
+            st.write("filename:", uploaded_file.name)
+            st.write(bytes_data)
+            
+            #file to be attached to the assistant
+            file = client.files.create(
+                file=open(uploaded_file.name, "rb"),
+                purpose='assistants'
+            )
+            #attach file to assistant
+            assistant_file = client.beta.assistants.files.create(
+                assistant_id=assistant.id, 
+                file_id=file.id
+            )
+
 @st.cache_data
 def init():
     assistant = client.beta.assistants.create(
@@ -17,16 +37,6 @@ def init():
         tools=[{"type": "retrieval"}]
     )
     
-    #file to be attached to the assistant
-    file = client.files.create(
-        file=open("memgpt.pdf", "rb"),
-        purpose='assistants'
-    )
-    #attaching the file to assistant
-    assistant_file = client.beta.assistants.files.create(
-    assistant_id=assistant.id, 
-    file_id=file.id
-    )
     #create a persistent thread
     thread = client.beta.threads.create()
     return (assistant.id, thread.id)
@@ -46,6 +56,7 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 assistant_id, thread_id = init()
+upload_file()
 
 # React to user input
 if prompt := st.chat_input("How are you?"):
