@@ -1,1 +1,2 @@
-# A RAG chatbot created using OpenAI's Assistant-API where a user can simply upload the local documents and get started with chatting to the documents. 
+# OpenAI RAG based chat application for your local files
+A RAG chatbot created using OpenAI's Assistant-API where a user can simply upload the local documents and get started with chatting to the documents. 
